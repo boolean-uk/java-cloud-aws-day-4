@@ -1,33 +1,40 @@
 # JAVA Cloud AWS - Day Four
-# C# Cloud AWS - Day Four
 ## Commands to Set Up SQS, SNS, and EventBridge
 
 Note in Every command and URL being called there are fields that need to be replaced.
 
-`{studentName}` - example `ajdewilzin`
+Example replacements (make sure to replace the curly brackets as well: don't keep curly brackets)
+
+`{studentName}` - example `ajdewilzin` - this can be your name, independent of your login details
 
 `{region}` - example `eu-north-1`
 
 ### Steps
-1. Create an SQS Queue:
+1. Create an SNS Topic:
+
+```bash
+aws sns create-topic --name {studentName}OrderCreatedTopic
+```
+If successful, you will see in your terminal a JSON response that includes `"TopicArn": "...`.
+
+Replace `_topicArn` in your Controller code with the generated `TopicArn` value from above.
+
+2. Create an SQS Queue:
 
 ```bash
 aws sqs create-queue --queue-name {studentName}OrderQueue
 ```
 
+If successful, you will see in your terminal a JSON response that includes `"QueueUrl": "some_aws_url`.
+
+Replace `_queueUrl` in your Controller code with the generated `QueueUrl` from the above command.
+
+
 ```bash
 aws sns subscribe --topic-arn arn:aws:sns:{region}:637423341661:{studentName}OrderCreatedTopic --protocol sqs --notification-endpoint arn:aws:sqs:{region}:637423341661:{studentName}OrderQueue
 ```
 
-Replace the above `QueueUrl` with _queueUrl in your controller
-
-2. Create an SNS Topic:
-
-```bash
-aws sns create-topic --name {studentName}OrderCreatedTopic
-```
-
-Replace the above `TopicArn` with _topicArn in your controller
+You don't need to save the generated SubscriptionArn.
 
 3. Create an EventBridge Event Bus:
 
@@ -40,6 +47,8 @@ aws events create-event-bus --name {StudentName}CustomEventBus --region {region}
 ```bash
 aws events put-rule --name {StudentName}OrderProcessedRule --event-pattern '{\"source\": [\"order.service\"]}' --event-bus-name {StudentName}CustomEventBus
 ```
+
+If your terminal complains about double quotes, you might need to remove the backslash `\` from the command above (and commands later on).
 
 
 5. Subscribe the SQS Queue to the SNS Topic
@@ -55,7 +64,7 @@ aws sns subscribe --topic-arn arn:aws:sns:{region}:637423341661:{studentName}Ord
 6. Grant SNS Permissions to SQS
 
 ```bash
-aws sqs set-queue-attributes --queue-url https://sqs.{region}.amazonaws.com/637423341661/{studentName}OrderQueue --attributes '{"Policy":"{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"*\"},\"Action\":\"SQS:SendMessage\",\"Resource\":\"arn:aws:sqs:{region}:637423341661:{studentName}OrderQueue\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:sns:{region}:637423341661:{studentName}OrderCreatedTopic\"}}}]}}"}' --region {region}
+aws sqs set-queue-attributes --queue-url https://sqs.{region}.amazonaws.com/637423341661/{studentName}OrderQueue --attributes '{"Policy":"{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"*\"},\"Action\":\"SQS:SendMessage\",\"Resource\":\"arn:aws:sqs:{region}:637423341661:{studentName}OrderQueue\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:sns:{region}:637423341661:{studentName}OrderCreatedTopic\"}}}]}"}' --region {region}
 ```
 
 ## Core Exercise
