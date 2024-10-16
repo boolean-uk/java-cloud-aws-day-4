@@ -50,3 +50,25 @@ resource "aws_api_gateway_integration" "integration" {
    integration_http_method = "POST"
    uri         = aws_lambda_function.backend.invoke_arn
 }
+
+resource "aws_api_gateway_deployment" "deployment" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  stage_name  = "todos"
+
+  depends_on = [aws_api_gateway_integration.integration]
+}
+
+resource "aws_lambda_permission" "apigw_lambda" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.backend.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  # The /*/* portion grants access from any method on any resource
+  # within the API Gateway "REST API".
+  source_arn = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
+}
+
+output "base_url" {
+  value = aws_api_gateway_deployment.deployment.invoke_url
+}
