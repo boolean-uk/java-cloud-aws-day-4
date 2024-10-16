@@ -1,5 +1,13 @@
 # JAVA Cloud AWS - Day Four
 
+## Iris commentary
+
+   I'm not sure what my commentary is supposed to be... Here's the link to the images:
+   ![aws](./aws_screenshot_proof_of_success.png)
+   ![cmd](./cmd_screenshot_proof_of_success_with_personal_mail.png)
+
+   This took way too long, just fiddling with the main.tf settings. I much prefer when we just hosted a website on their servers or whatever. The EC2 was maybe even better, though I didn't have enough time to try that out. I don't think I exposed any secret information like this, but I don't really know what I'm doing tbh.
+
 ## Learning Objectives
    - Automate AWS Lambda deployments using Terraform.
    - Explore using Terraform to deploy and manage other parts of the AWS stack
