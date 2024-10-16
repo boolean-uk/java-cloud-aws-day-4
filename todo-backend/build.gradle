@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.4'
 	id 'io.spring.dependency-management' version '1.1.6'
+	id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'com.booleanuk'
@@ -46,6 +47,13 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
+tasks.withType(com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+	archiveClassifier.set('shadow')
+	mergeServiceFiles()
+	manifest {
+		attributes 'Main-Class': 'com.booleanuk.Main'
+	}
+}
 
 jar {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -56,6 +64,10 @@ jar {
 	from {
 		configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
 	}
+}
+
+tasks.build {
+	dependsOn tasks.shadowJar
 }
 
 tasks.register('buildZip', Zip) {

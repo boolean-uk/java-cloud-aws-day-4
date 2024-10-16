@@ -17,12 +17,13 @@ resource "aws_iam_role" "some_role" {
 }
 
 resource "aws_lambda_function" "backend" {
-   filename         = "todo-backend/build/libs/TodoApp-0.0.2.jar"
+   filename         = "todo-backend/build/libs/TodoApp-0.0.2-shadow.jar"
    function_name    = "TodoAppHermanStornesTF"
    role             = aws_iam_role.some_role.arn
    handler          = "org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest"
    runtime          = "java21"
-   source_code_hash = filebase64sha256("todo-backend/build/libs/TodoApp-0.0.2.jar")
+   source_code_hash = filebase64sha256("todo-backend/build/libs/TodoApp-0.0.2-shadow.jar")
+   timeout          = 900
 
    environment {
      variables = {

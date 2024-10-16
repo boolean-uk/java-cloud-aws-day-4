@@ -2,7 +2,6 @@ package com.booleanuk.TodoApp.controllers;
 
 import com.booleanuk.TodoApp.models.Todo;
 import com.booleanuk.TodoApp.repositories.TodoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +15,11 @@ import java.util.List;
 @EnableWebMvc
 @RequestMapping("todos")
 public class TodoController {
-    @Autowired
-    private TodoRepository todoRepository;
+    private final TodoRepository todoRepository;
+
+    public TodoController(TodoRepository repository) {
+        this.todoRepository = repository;
+    }
 
     @GetMapping
     public ResponseEntity<List<Todo>> getAllTodos() {
