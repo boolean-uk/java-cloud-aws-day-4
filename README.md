@@ -1,3 +1,8 @@
+# Screenshots
+![tuvas-terras-function.png](tuvas-terras-function.png)
+![terra_todos.png](terra_todos.png)
+![terra-test-output.png](terra-test-output.png)
+
 # JAVA Cloud AWS - Day Four
 
 ## Learning Objectives
