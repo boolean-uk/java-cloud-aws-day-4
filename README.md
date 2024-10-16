@@ -123,3 +123,4 @@ A working install of something else successfully deployed using Terraform, again
 
 ## Link to API Gateway
 ### https://x6xkewauoe.execute-api.eu-west-1.amazonaws.com/prod/register
+### https://x6xkewauoe.execute-api.eu-west-1.amazonaws.com/prod/todos
