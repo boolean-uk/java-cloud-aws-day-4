@@ -1,78 +1,122 @@
 # JAVA Cloud AWS - Day Four
-## Commands to Set Up SQS, SNS, and EventBridge
 
-Note in Every command and URL being called there are fields that need to be replaced.
+## Learning Objectives
+   - Automate AWS Lambda deployments using Terraform.
+   - Explore using Terraform to deploy and manage other parts of the AWS stack
+   - (Optional) Split backend functionalities into separate Lambda functions, triggered via HTTP calls.
 
-Example replacements (make sure to replace the curly brackets as well: don't keep curly brackets)
 
-`{studentName}` - example `ajdewilzin` - this can be your name, independent of your login details
-
-`{region}` - example `eu-north-1`
-
+## Use Terraform to Automate Lambda Deployment
+## Prerequisites:
+   -[] Ensure that Terraform CLI is installed and AWS CLI is configured.
 ### Steps
-1. Create an SNS Topic:
+1. Write Terraform Configuration:
+    - In your project folder, create a file named main.tf with the following content:
+    ```bash
+      provider "aws" {
+         region = "eu-north-1"
+      }
 
-```bash
-aws sns create-topic --name {studentName}OrderCreatedTopic
-```
-If successful, you will see in your terminal a JSON response that includes `"TopicArn": "...`.
+      resource "aws_iam_role" "lambda_role" {
+         name = "lambda_role"
+         assume_role_policy = jsonencode({
+            Version = "2012-10-17",
+            Statement = [{
+               Action = "sts:AssumeRole",
+               Effect = "Allow",
+               Principal = {
+               Service = "lambda.amazonaws.com"
+               }
+            }]
+         })
+      }
 
-Replace `_topicArn` in your Controller code with the generated `TopicArn` value from above.
+      resource "aws_lambda_function" "backend" {
+         filename         = "backend.zip"
+         function_name    = "MyBackendFunction"
+         role             = aws_iam_role.lambda_role.arn
+         handler          = "Backend::Backend.Function::FunctionHandler"
+         runtime          = "java" -- JAVAENVIRONMENT
+         source_code_hash = filebase64sha256("backend.zip")
+      }
 
-2. Create an SQS Queue:
+      resource "aws_api_gateway_rest_api" "api" {
+         name = "MyBackendAPI"
+      }
 
-```bash
-aws sqs create-queue --queue-name {studentName}OrderQueue
-```
+      resource "aws_api_gateway_resource" "resource" {
+         rest_api_id = aws_api_gateway_rest_api.api.id
+         parent_id   = aws_api_gateway_rest_api.api.root_resource_id
+         path_part   = "register"
+      }
 
-If successful, you will see in your terminal a JSON response that includes `"QueueUrl": "some_aws_url`.
+      resource "aws_api_gateway_method" "method" {
+         rest_api_id   = aws_api_gateway_rest_api.api.id
+         resource_id   = aws_api_gateway_resource.resource.id
+         http_method   = "GET"
+         authorization = "NONE"
+      }
 
-Replace `_queueUrl` in your Controller code with the generated `QueueUrl` from the above command.
+      resource "aws_api_gateway_integration" "integration" {
+         rest_api_id = aws_api_gateway_rest_api.api.id
+         resource_id = aws_api_gateway_resource.resource.id
+         http_method = aws_api_gateway_method.method.http_method
+         type        = "AWS_PROXY"
+         integration_http_method = "POST"
+         uri         = aws_lambda_function.backend.invoke_arn
+      }
+   ```
 
+2. Package Your Lambda Code:
+   - Publish your Lambda function using the following commands:
+   ```bash
+   dotnet publish -c Release -o out --JAVA COMMAND TO PUBLISH
+   cd out
+   zip -r backend.zip .
 
-```bash
-aws sns subscribe --topic-arn arn:aws:sns:{region}:637423341661:{studentName}OrderCreatedTopic --protocol sqs --notification-endpoint arn:aws:sqs:{region}:637423341661:{studentName}OrderQueue
-```
+   ```
 
-You don't need to save the generated SubscriptionArn.
+3. Run Terraform:
+   - Initialize Terraform:
+   ```bash
+   terraform init
+   ```
+   - Apply the configuration:
+   ```bash
+   terraform apply
+   ```
+4. Verify Lambda and API Gateway Deployment:
+   - Check the API Gateway endpoint URL in AWS and ensure it is connected to the Lambda function by visiting `https://your-api-id.execute-api.region.amazonaws.com/register`.
 
-3. Create an EventBridge Event Bus:
+## (Optional) Split Functionalities into Multiple Lambda Functions
+### Steps
 
-```bash
-aws events create-event-bus --name {StudentName}CustomEventBus --region {region}
-```
+1. Create Additional Lambda Functions:
+   - Create separate Lambda functions to handle different tasks. For example, create one function for user registration and another for order processing.
 
-4. Create an EventBridge Rule:
+2. Update API Gateway:
+   - In API Gateway, add new routes like `/register` and `/order`, linking each route to its respective Lambda function.
 
-```bash
-aws events put-rule --name {StudentName}OrderProcessedRule --event-pattern '{\"source\": [\"order.service\"]}' --event-bus-name {StudentName}CustomEventBus
-```
+3. Test the API:
+   - Verify that different routes trigger different Lambda functions. For instance:
+   - `/register` calls the user registration function.
+   - `/order` calls the order processing function.
 
-If your terminal complains about double quotes, you might need to remove the backslash `\` from the command above (and commands later on).
+## Explore further
 
+Once you have successfully used Terraform to deploy an application to AWS Lambda, explore the capabilitities of Terraform more fully.
+  - What other AWS platforms can you deploy using Terraform?
+  - What limitations and problems might you experience?
+  - Are there parts fo the stack which cannot be managed with AWS?
 
-5. Subscribe the SQS Queue to the SNS Topic
+## Deliverables
 
-```bash
-aws sqs get-queue-attributes --queue-url https://sqs.{region}.amazonaws.com/637423341661/{studentName}OrderQueue --attribute-name QueueArn --region {region}
-```
+Make sure you don't accidentally expose any of your secret information when doing the following.
 
-```bash
-aws sns subscribe --topic-arn arn:aws:sns:{region}:637423341661:{studentName}OrderCreatedTopic --protocol sqs --notification-endpoint arn:aws:sqs:{region}:637423341661:{studentName}OrderQueue --region {region}
-```
+### Core
 
-6. Grant SNS Permissions to SQS
+A working install of the AWS Lambda functions deployed using Terraform (screenshot your successes and post them here with a commentary) and link to them.
 
-In Bash/Unix terminals you can run this command:
+### Extension
 
-```bash
-aws sqs set-queue-attributes --queue-url https://sqs.{region}.amazonaws.com/637423341661/{studentName}OrderQueue --attributes '{"Policy":"{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"*\"},\"Action\":\"SQS:SendMessage\",\"Resource\":\"arn:aws:sqs:{region}:637423341661:{studentName}OrderQueue\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:sns:{region}:637423341661:{studentName}OrderCreatedTopic\"}}}]}"}' --region {region}
-```
-
-## Core Exercise
-1. Create a few orders using a RDS database. Orders to be saved in Database.
-2. Update Process flag to false
-3. Process orders and update the Total amount from QTY * AMOUNT
-4. Update Process flag to true
-
-## Extension Exercise
+A working install of something else successfully deployed using Terraform, again post screenshots of your successes etc as well as link to them.
