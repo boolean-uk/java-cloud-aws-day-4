@@ -1,9 +1,9 @@
 provider "aws" {
-   region = "eu-north-1"
+   region = "eu-west-1"
 }
 
-resource "aws_iam_role" "lambda_role" {
-   name = "lambda_role"
+resource "aws_iam_role" "some_role" {
+   name = "some_role"
    assume_role_policy = jsonencode({
       Version = "2012-10-17",
       Statement = [{
@@ -17,22 +17,22 @@ resource "aws_iam_role" "lambda_role" {
 }
 
 resource "aws_lambda_function" "backend" {
-   filename         = "backend.zip"
-   function_name    = "MyBackendFunction"
-   role             = aws_iam_role.lambda_role.arn
-   handler          = "Backend::Backend.Function::FunctionHandler"
-   runtime          = "java" -- JAVAENVIRONMENT
-   source_code_hash = filebase64sha256("backend.zip")
+   filename         = "TodoApp-0.0.2.jar"
+   function_name    = "TodoAppHermanStornesTF"
+   role             = aws_iam_role.some_role.arn
+   handler          = "com.booleanuk.StreamLambdaHandler::handleRequest"
+   runtime          = "java21"
+   source_code_hash = filebase64sha256("TodoApp-0.0.2.jar")
 }
 
 resource "aws_api_gateway_rest_api" "api" {
-   name = "MyBackendAPI"
+   name = "TodoAppHermanStornesTF"
 }
 
 resource "aws_api_gateway_resource" "resource" {
    rest_api_id = aws_api_gateway_rest_api.api.id
    parent_id   = aws_api_gateway_rest_api.api.root_resource_id
-   path_part   = "register"
+   path_part   = "todos"
 }
 
 resource "aws_api_gateway_method" "method" {
