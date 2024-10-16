@@ -150,5 +150,5 @@ name = "EmmaSpringBootPetStoreApiDay4"
 4. Copied the jar file into a zip file called backend.zip and placed it in the root folder (same as main.tf).
 4. `terraform init`
 5. `terraform apply`
-4. Checked that the application showed up on aws console site (manually added the API gateway to the lambda function):
+4. Checked that the application showed up on aws console site (manually added the API gateway to the lambda function):  
 ![](images/1_aws_lambda_function.png)
