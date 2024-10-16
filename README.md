@@ -120,3 +120,6 @@ A working install of the AWS Lambda functions deployed using Terraform (screensh
 ### Extension
 
 A working install of something else successfully deployed using Terraform, again post screenshots of your successes etc as well as link to them.
+
+## Link to API Gateway
+### https://x6xkewauoe.execute-api.eu-west-1.amazonaws.com/prod/register
