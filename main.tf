@@ -20,16 +20,11 @@ resource "aws_lambda_function" "backend" {
    filename         = "todo-backend/build/libs/TodoApp-0.0.2-shadow.jar"
    function_name    = "TodoAppHermanStornesTF"
    role             = aws_iam_role.some_role.arn
-   handler          = "org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest"
+   handler          = "com.booleanuk.StreamLambdaHandler::handleRequest"
    runtime          = "java21"
    source_code_hash = filebase64sha256("todo-backend/build/libs/TodoApp-0.0.2-shadow.jar")
-   timeout          = 900
-
-   environment {
-     variables = {
-       SPRING_CLOUD_FUNCTION_DEFINITION = "streamLambdaHandler"
-     }
-   }
+   memory_size      = 1024
+   timeout          = 10
 }
 
 resource "aws_api_gateway_rest_api" "api" {
