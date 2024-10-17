@@ -1,0 +1,1 @@
+Link to pets app deployed with terraform: https://wb0zksvki2.execute-api.eu-west-1.amazonaws.com/prod/pets
