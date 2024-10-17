@@ -1,3 +1,14 @@
+## Solution
+
+
+
+https://7lqjtjlgnb.execute-api.eu-west-1.amazonaws.com/prod/pets
+
+Done with pets using Terraform.
+
+The main.tf is the file i used for my lambda function.
+
+
 # JAVA Cloud AWS - Day Four
 
 ## Learning Objectives
