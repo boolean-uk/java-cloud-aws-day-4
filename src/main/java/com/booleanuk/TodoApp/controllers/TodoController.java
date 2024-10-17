@@ -14,7 +14,6 @@ import java.util.List;
 @CrossOrigin
 @RestController
 @RequestMapping("todos")
-@EnableWebMvc
 public class TodoController {
     @Autowired
     private TodoRepository todoRepository;
