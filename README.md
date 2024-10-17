@@ -1,4 +1,4 @@
-# JAVA Cloud AWS - Day Four
+# JAVA Cloud AWS - Day Four 
 
 ## Learning Objectives
    - Automate AWS Lambda deployments using Terraform.
