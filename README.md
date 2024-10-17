@@ -120,3 +120,35 @@ A working install of the AWS Lambda functions deployed using Terraform (screensh
 ### Extension
 
 A working install of something else successfully deployed using Terraform, again post screenshots of your successes etc as well as link to them.
+
+# Submission
+
+Using the pet-store example code from AWS:  
+1. Changed main.tf content  
+   name to 'personal email'  
+   java to 'java21'  
+   function and api names  
+
+```
+resource "aws_lambda_function" "backend" {
+filename         = "backend.zip"
+function_name    = "EmmaPetStoreFunctionDay4"
+role             = aws_iam_role.lambda_role.arn
+handler          = "com.amazonaws.serverless.sample.springboot3.StreamLambdaHandler::handleRequest"
+runtime          = "java21"
+source_code_hash = filebase64sha256("backend.zip")
+}
+
+resource "aws_api_gateway_rest_api" "api" {
+name = "EmmaSpringBootPetStoreApiDay4"
+}
+```
+
+
+2.  Run `./gradlew build` instead of `dotnet publish -c Release -o out`
+3. It creates a jar file
+4. Copied the jar file into a zip file called backend.zip and placed it in the root folder (same as main.tf).
+4. `terraform init`
+5. `terraform apply`
+4. Checked that the application showed up on aws console site (manually added the API gateway to the lambda function):  
+![](images/1_aws_lambda_function.png)
